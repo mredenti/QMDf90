@@ -22,10 +22,11 @@ module gaussian
       integer, len :: nq
       integer, len :: np
       real(mykind)                           :: eps
+      complex(mykind), dimension(nq,np)     :: s
       complex(mykind), dimension(nq,np)     :: a
       real(mykind), dimension(dim, nq, np)   :: q
       real(mykind), dimension(dim, nq, np)   :: p
-      complex(mykind), dimension(dim, dim, 1) :: C
+      complex(mykind), dimension(dim, dim, nq, np) :: C
 
    end type gaussian_param
 
@@ -85,7 +86,7 @@ contains
       L_p = 4.0*PI
       dq = 2.0*L_q / param1%nq
       dp = 2.0*L_p / param1%np
-      param1%C = (0.0, 1.0) ! gamma
+      param1%C(1,1,:,:) = (0.0, 1.0) ! gamma
 
       do j = 1, param1%np
          ! midpoint rule
@@ -133,21 +134,21 @@ contains
       L_q = 8
       dq = 2.0*L_q / param1%nq
 
-      param1%C = (0.0, 1.0) ! gamma
+      param1%C(1,1,:,:) = (0.0, 1.0) ! gamma
      
       do k = 1, param1%nq
          ! midpoint rule
-         param1%q(1,k) = param0%q(1,1) - L_q + dq / 2.0 * (2.0*k - 1.0)
+         param1%q(1,k,:) = param0%q(1,1,1) - L_q + dq / 2.0 * (2.0*k - 1.0)
       end do
 
       ! call to obtain N nodes and N weights
-      call cgqf ( param1%np, param1%p(1,:), w )
+      call cgqf ( param1%np, param1%p(1,1,:), w )
 
       ! transform nodes and weights
       do j = 1, param1%np
          ! midpoint rule
-         w(j) = exp(param1%p(1,j)**2)*w(j)*sqrt(2.0 * param0%eps) ! prior to updating pj
-         param1%p(1,j) = param0%p(1,1) + param1%p(1,j)*sqrt(2.0 * param0%eps)  ! sampled from ?
+         w(j) = exp(param1%p(1,1,j)**2)*w(j)*sqrt(2.0 * param0%eps) ! prior to updating pj
+         param1%p(1,:,j) = param0%p(1,1,1) + param1%p(1,1,j)*sqrt(2.0 * param0%eps)  ! sampled from ?
       end do
 
       call gaussian_inner_product(param0, param1, b)
@@ -175,20 +176,21 @@ contains
       complex(mykind) :: i = (0.0, 1.0)
       integer :: j, k
 
-      A = i / (param0%C(1,1,1) - conjg(param1%C(1,1,1)))
+      A = i / (param0%C(1,1,1,1) - conjg(param1%C(1,1,1,1)))
 
-      D1 = 1.0 / (1.0 / param0%C(1,1,1) - 1.0 / (conjg(param1%C(1,1,1))))
-      D2 = - 1.0 / ( param0%C(1,1,1) - (conjg(param1%C(1,1,1))) )
+      D1 = 1.0 / (1.0 / param0%C(1,1,1,1) - 1.0 / (conjg(param1%C(1,1,1,1))))
+      D2 = - 1.0 / ( param0%C(1,1,1,1) - (conjg(param1%C(1,1,1,1))) )
 
 
       do j = 1, param1%nq ! should be careful how to loop - this is wrong
          do k = 1, param1%np
             ! this product occurs also in GH quadrature rules
-            b(j,k) = 2**(0.5)*(param1%C(1,1,1)%im * param0%C(1,1,1)%im)**(0.25) / sqrt(1.0 / A) &
-               * exp( i / 2.0 / param0%eps * (param1%p(1,k) + param0%p(1,1)) * (param1%q(1,j) - param0%q(1,1)) ) &
-               * exp( 1.0 / 2.0 / param0%eps * (param1%p(1,k) - param0%p(1,1)) * A * (param0%C(1,1,1) + conjg(param1%C(1,1,1))) &
-               * (param1%q(1,j) - param0%q(1,1)) ) &
-               * exp(i / 2.0 / param0%eps * ( (param1%p(1,k) - param0%p(1,1))**2 * D2 + (param1%q(1,j) - param0%q(1,1))**2 * D1 ))
+            b(j,k) = 2**(0.5)*(param1%C(1,1,1,1)%im * param0%C(1,1,1,1)%im)**(0.25) / sqrt(1.0 / A) &
+               * exp( i / 2.0 / param0%eps * (param1%p(1,1,k) + param0%p(1,1,1)) * (param1%q(1,j,1) - param0%q(1,1,1)) ) &
+               * exp( 1.0 / 2.0 / param0%eps * (param1%p(1,1,k) - param0%p(1,1,1)) * A & 
+               * (param0%C(1,1,1,1) + conjg(param1%C(1,1,1,1))) * (param1%q(1,j,1) - param0%q(1,1,1)) ) &
+               * exp(i / 2.0 / param0%eps * ( (param1%p(1,1,k) - param0%p(1,1,1))**2 & 
+               * D2 + (param1%q(1,j,1) - param0%q(1,1,1))**2 * D1 ))
          end do
       end do
 
