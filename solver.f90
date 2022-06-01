@@ -10,7 +10,7 @@ module solver
 
         real(mykind) :: t 
         real(mykind) :: dt 
-        integer :: itr 
+        integer :: itr = 1
 
     end type time_type   
 
