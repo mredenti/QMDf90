@@ -22,7 +22,7 @@ module gaussian
       integer, len :: nq
       integer, len :: np
       real(mykind)                           :: eps
-      complex(mykind), dimension(nq,np)     :: s
+      real(mykind), dimension(nq,np)     :: s
       complex(mykind), dimension(nq,np)     :: a
       real(mykind), dimension(dim, nq, np)   :: q
       real(mykind), dimension(dim, nq, np)   :: p

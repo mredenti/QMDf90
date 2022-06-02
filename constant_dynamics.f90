@@ -1,6 +1,6 @@
 program main
 
-   use potential_lz_module
+   use potential_constant_module
    use gaussian
    use dynamics
    use setup, only : mykind
@@ -9,9 +9,8 @@ program main
    implicit none
 
    type(gaussian_param(1,1,1)) :: param0
-   type(potential_lz_type) :: pot
-   real(mykind) :: alpha
-   real(mykind) :: delta
+   type(potential_constant_type) :: pot
+   real(mykind) :: alpha, delta, c
    type(time_type) :: time
 
    ! QM_INIT()
@@ -27,10 +26,11 @@ program main
    ! potential parameters
    alpha = 0.5
    delta = 0.5
+   c = 0.5
 
    ! set up LZ potential parameters
    ! case(potential_name) set up corresponding potential
-   pot = potential_lz_type(1, alpha, delta)
+   pot = potential_constant_type(1, alpha, delta, c)
 
    ! set up time
    time = time_type(5.0, 0.01)

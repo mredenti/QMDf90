@@ -31,6 +31,7 @@ module potential_module
         procedure :: trace
         ! eigenvalues 
         procedure :: rho
+        ! trace
         procedure :: trace_d
         procedure :: rho_d
         procedure :: trace_dd
@@ -249,7 +250,7 @@ contains
         real(mykind), dimension(this%dim) :: v11_grad, v22_grad, v12_grad
         
         call this%v11d(x, v11_grad)
-        call this%v11d(x, v22_grad)
+        call this%v22d(x, v22_grad)
         call this%v12d(x, v12_grad)
   
         grad = ( (this%v11(x) - this%v22(x)) / 2.0 * (v11_grad - v22_grad) / 2.0 &
@@ -283,12 +284,12 @@ contains
         real(mykind), dimension(this%dim, this%dim) :: v11_hessian, v22_hessian, v12_hessian, Z_hessian
         
         call this%v11d(x, v11_grad)
-        call this%v11d(x, v22_grad)
+        call this%v22d(x, v22_grad)
         call this%v12d(x, v12_grad)
 
         call this%v11dd(x, v11_hessian)
-        call this%v11dd(x, v22_hessian)
-        call this%v22dd(x, v12_hessian)
+        call this%v22dd(x, v22_hessian)
+        call this%v12dd(x, v12_hessian)
 
         Z = ( this%v11(x) - this%v22(x) ) / 2.0
         Z_grad = ( v11_grad - v22_grad ) / 2.0
