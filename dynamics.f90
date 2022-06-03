@@ -19,10 +19,10 @@ contains
       open(newunit = myunit, file = 'parameters.txt', form = 'formatted', &
          action = 'write', status = 'replace')
 
-      write(myunit, *) param%q(1,1,1), param%p(1,1,1), &
+      write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
          param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
          param%a(1,1)%re, param%a(1,1)%im, &
-         param%s(1,1)
+         param%s(1,1)%re, param%s(1,1)%im
 
       do while ( time%itr < time%t / time%dt)
          ! later - detect crossing, detect decomposition, re-evolve,
@@ -30,10 +30,10 @@ contains
          ! rename it to solver_do_step()
          if  (mod(time%itr, 40) == 0) then
             ! call a write to file function
-            write(myunit, *) param%q(1,1,1), param%p(1,1,1), &
+            write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
                param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
                param%a(1,1)%re, param%a(1,1)%im, &
-               param%s(1,1)
+               param%s(1,1)%re, param%s(1,1)%im
          end if
 
          call do_step(param, time, pot)

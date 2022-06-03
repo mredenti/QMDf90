@@ -21,7 +21,7 @@ program main
    param0%p = 4
    param0%C = (0.0, 1.0)
    param0%a = (1.0, 0.0)
-   param0%s = 0.0
+   param0%s = (0.0, 0.0)
 
    ! potential parameters
    alpha = 0.5
