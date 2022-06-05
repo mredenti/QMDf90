@@ -1,5 +1,6 @@
 module dynamics
 
+   use save 
    use solver
    use gaussian
    use potential_module
@@ -8,21 +9,18 @@ module dynamics
 
 contains
 
-   subroutine qm_propa(time, param, pot)
+   subroutine qm_propa(file_name, time, param, pot)
 
+      character(len=*), intent(in)    :: file_name
       type(time_type), intent(inout) :: time
       type(gaussian_param(*,*,*)), intent(inout) :: param
       class(potential_type), intent(in) :: pot
 
-      integer :: myunit
       ! open file to store data
-      open(newunit = myunit, file = 'parameters.txt', form = 'formatted', &
-         action = 'write', status = 'replace')
-
-      write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
-         param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
-         param%a(1,1)%re, param%a(1,1)%im, &
-         param%s(1,1)%re, param%s(1,1)%im
+      !open(newunit = myunit, file = 'parameters.txt', form = 'formatted', &
+         !action = 'write', status = 'replace')
+      
+      call save_open_gaussian(file_name, param, time)
 
       do while ( time%itr < time%t / time%dt)
          ! later - detect crossing, detect decomposition, re-evolve,
@@ -30,10 +28,11 @@ contains
          ! rename it to 
          if  (mod(time%itr, 40) == 0) then
             ! call a write to file function
-            write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
-               param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
-               param%a(1,1)%re, param%a(1,1)%im, &
-               param%s(1,1)%re, param%s(1,1)%im
+            !write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
+               !param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
+               !param%a(1,1)%re, param%a(1,1)%im, &
+               !param%s(1,1)%re, param%s(1,1)%im
+            call save_write_gaussian(file_name, param, time)
          end if
          !rename it to solver_do_step()
          call do_step(param, time, pot)

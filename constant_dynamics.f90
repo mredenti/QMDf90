@@ -12,6 +12,7 @@ program main
    type(potential_constant_type) :: pot
    real(mykind) :: alpha, delta, c
    type(time_type) :: time
+   character(len=*), parameter :: FILE_NAME = 'constant_dynamics.nc'  
 
    ! QM_INIT()
    ! CALL Init_Model(QModel,pot_name='Tully',Print_init=.FALSE.)
@@ -39,7 +40,7 @@ program main
    ! ######################################################################
    ! qm_read(input_txt)
    ! qm_init() - set up potential values?
-   call qm_propa(time, param0, pot)
+   call qm_propa(FILE_NAME, time, param0, pot)
    ! qm_finalise()
 
 end program main
