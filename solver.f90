@@ -5,6 +5,7 @@ module solver
     use potential_module
     
     implicit none 
+    private
     
     type, public :: time_type 
 
@@ -13,6 +14,8 @@ module solver
         integer :: itr = 1
 
     end type time_type   
+
+    public :: do_step
 
     interface
         ! defer the implementation to the particular solver
@@ -23,6 +26,7 @@ module solver
             class (potential_type), intent(in) :: potential
 
         end subroutine do_step
+
     end interface
 
 end module solver

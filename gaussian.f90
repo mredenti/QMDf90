@@ -21,12 +21,18 @@ module gaussian
       integer, len :: dim
       integer, len :: nq
       integer, len :: np
+      logical :: state
+      ! character : name
+      ! eps
       real(mykind)                           :: eps
+      ! store gap to detect crossing
+      real(mykind) :: gap, gap_old, gap_old_old
       complex(mykind), dimension(nq,np)     :: s
       complex(mykind), dimension(nq,np)     :: a
       real(mykind), dimension(dim, nq, np)   :: q
       real(mykind), dimension(dim, nq, np)   :: p
       complex(mykind), dimension(dim, dim, nq, np) :: C
+      ! procedure :: update?
 
    end type gaussian_param
 

@@ -16,6 +16,7 @@ program main
    ! QM_INIT()
    ! CALL Init_Model(QModel,pot_name='Tully',Print_init=.FALSE.)
    ! initial condition parameters
+   param0%state = .true.
    param0%eps = 0.1
    param0%q = - 10
    param0%p = 4
@@ -37,7 +38,7 @@ program main
 
    ! ######################################################################
    ! qm_read(input_txt)
-   ! qm_init()
+   ! qm_init() - set up potential values?
    call qm_propa(time, param0, pot)
    ! qm_finalise()
 

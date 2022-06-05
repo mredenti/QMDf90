@@ -27,7 +27,7 @@ contains
       do while ( time%itr < time%t / time%dt)
          ! later - detect crossing, detect decomposition, re-evolve,
          ! hop, re-evolve
-         ! rename it to solver_do_step()
+         ! rename it to 
          if  (mod(time%itr, 40) == 0) then
             ! call a write to file function
             write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
@@ -35,8 +35,13 @@ contains
                param%a(1,1)%re, param%a(1,1)%im, &
                param%s(1,1)%re, param%s(1,1)%im
          end if
-
+         !rename it to solver_do_step()
          call do_step(param, time, pot)
+         ! detect crossing 
+         ! call sssh_hop(param, pot)?
+         ! call hopper_hop()
+         ! there will be a decomposition function inside sssh_hop
+
 
          time%itr = time%itr + 1
 
