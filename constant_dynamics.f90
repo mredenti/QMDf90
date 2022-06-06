@@ -14,7 +14,7 @@ program main
    type(time_type) :: time
    character(len=*), parameter :: FILE_NAME = 'constant_dynamics.nc'  
 
-   ! QM_INIT()
+   !call qm_init(param0) ! pass in an input file 
    ! CALL Init_Model(QModel,pot_name='Tully',Print_init=.FALSE.)
    ! initial condition parameters
    param0%state = .true.
@@ -36,6 +36,11 @@ program main
 
    ! set up time
    time = time_type(5.0, 0.01)
+
+   ! set up potential 
+   param0%gap = pot%gap(param0%q(1,1,1))
+   param0%gap_old = param0%gap
+   param0%gap_old_old = param0%gap
 
    ! ######################################################################
    ! qm_read(input_txt)

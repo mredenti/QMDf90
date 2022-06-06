@@ -3,6 +3,7 @@ module dynamics
    use save 
    use solver
    use gaussian
+   use sssh
    use potential_module
 
    implicit none
@@ -15,30 +16,36 @@ contains
       type(time_type), intent(inout) :: time
       type(gaussian_param(*,*,*)), intent(inout) :: param
       class(potential_type), intent(in) :: pot
-
-      ! open file to store data
-      !open(newunit = myunit, file = 'parameters.txt', form = 'formatted', &
-         !action = 'write', status = 'replace')
       
+      ! define variables
       call save_open_gaussian(file_name, param, time)
 
       do while ( time%itr < time%t / time%dt)
-         ! later - detect crossing, detect decomposition, re-evolve,
-         ! hop, re-evolve
-         ! rename it to 
+         
          if  (mod(time%itr, 40) == 0) then
-            ! call a write to file function
-            !write(myunit, *) time%itr * time%dt, param%q(1,1,1), param%p(1,1,1), &
-               !param%C(1,1,1,1)%re, param%C(1,1,1,1)%im, &
-               !param%a(1,1)%re, param%a(1,1)%im, &
-               !param%s(1,1)%re, param%s(1,1)%im
             call save_write_gaussian(file_name, param, time)
          end if
          !rename it to solver_do_step()
          call do_step(param, time, pot)
+         ! update gap information 
+         param%gap_old_old = param%gap_old
+         param%gap_old = param%gap
+         param%gap = pot%gap(param%q(1,1,1))
+         
+         print *, param%gap, param%gap_old
+         
+
+         ! later - detect crossing, detect decomposition, re-evolve,
+         ! hop, re-evolve
+         ! rename it to 
+         ! update gap information ?
          ! detect crossing 
+         if (sssh_hop(param)) then 
+            param%state = .not. param%state
+            ! call superadiabatic_transition()
+         end if 
          ! call sssh_hop(param, pot)?
-         ! call hopper_hop()
+         ! call hopper_hop('sssh')
          ! there will be a decomposition function inside sssh_hop
 
 

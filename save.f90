@@ -15,6 +15,7 @@ module save
    character (len = *), parameter :: COVARIANCE_RE_NAME = "covariance.re"
    character (len = *), parameter :: A_RE_NAME = "a.re"
    character (len = *), parameter :: A_IM_NAME = "a.im"
+   character (len = *), parameter :: STATE_NAME = "state"
    character (len = *), parameter :: EPS_NAME = "eps"
    character (len = *), parameter :: UNITS = "units"
    character (len = *), parameter :: POS_UNITS = "a.u."
@@ -42,7 +43,7 @@ contains
 
       ! ncid is the file id
       integer                         :: ncid, pos_varid, mom_varid, time_varid, itr_varid
-      integer                         :: cov_im_varid, cov_re_varid, are_varid, aim_varid
+      integer                         :: cov_im_varid, cov_re_varid, are_varid, aim_varid, state_varid
 
 
       !
@@ -66,13 +67,18 @@ contains
       call check( nf90_def_var(ncid, TIME_NAME, NF90_DOUBLE, time_dimid, time_varid) )
 
       ! Define the variable type (NF90_INT: 4-byte integer).
+      ! mean position 
       call check(nf90_def_var(ncid, POS_NAME, NF90_DOUBLE, (/ dim_dimid, time_dimid /), pos_varid))
+      ! mean momentum 
       call check(nf90_def_var(ncid, MOM_NAME, NF90_DOUBLE, (/ dim_dimid, time_dimid /), mom_varid))
+      ! covariance 
       call check(nf90_def_var(ncid, COVARIANCE_RE_NAME, NF90_DOUBLE, (/ dim_dimid, dim_dimid, time_dimid /), cov_re_varid))
       call check(nf90_def_var(ncid, COVARIANCE_IM_NAME, NF90_DOUBLE, (/ dim_dimid, dim_dimid, time_dimid /), cov_im_varid))
+      ! coefficient 
       call check(nf90_def_var(ncid, A_RE_NAME, NF90_DOUBLE, (/ time_dimid /), are_varid))
       call check(nf90_def_var(ncid, A_IM_NAME, NF90_DOUBLE, (/ time_dimid /), aim_varid))
-
+      ! state 
+      call check(nf90_def_var(ncid, STATE_NAME, NF90_INT, (/ time_dimid /), state_varid))
 
       ! ! Assign units attributes to the netCDF variables.
       call check( nf90_put_att(ncid, pos_varid, UNITS, AU_UNITS) )
@@ -98,7 +104,7 @@ contains
       type(time_type), intent(in) :: time
 
       integer           :: ncid, pos_varid, mom_varid, time_varid, itr_varid
-      integer           :: covre_varid, covim_varid, are_varid, aim_varid
+      integer           :: covre_varid, covim_varid, are_varid, aim_varid, state_varid
 
       ! Open the file. 
       call check( nf90_open(file_name, nf90_write, ncid) )
@@ -112,6 +118,7 @@ contains
       call check( nf90_inq_varid(ncid, COVARIANCE_IM_NAME, covim_varid) )
       call check( nf90_inq_varid(ncid, A_RE_NAME, are_varid) )
       call check( nf90_inq_varid(ncid, A_IM_NAME, aim_varid) )
+      call check( nf90_inq_varid(ncid, STATE_NAME, state_varid) )
 
 
       ! Write the data to the file. (do n = 1, max itr)
@@ -125,8 +132,12 @@ contains
       call check(nf90_put_var(ncid, covim_varid, param%C(:,:,1,1)%im, start=[param%dim, param%dim , REC_COUNT] ))
       call check(nf90_put_var(ncid, are_varid, param%a(1,1)%re, start=[REC_COUNT] ))
       call check(nf90_put_var(ncid, aim_varid, param%a(1,1)%im, start=[REC_COUNT] ))
+      if (param%state) then 
+         call check(nf90_put_var(ncid, state_varid, 1, start=[REC_COUNT] ))
+      else 
+         call check(nf90_put_var(ncid, state_varid, 0, start=[REC_COUNT] ))
+      end if 
       
-
       REC_COUNT = REC_COUNT + 1
       ! Close the file.
       call check(nf90_close(ncid))
